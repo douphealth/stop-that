@@ -28,3 +28,4 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+- Fix content lives only in src/data/fixes.json; pages read it through src/lib/fixes.ts so the data stays the single source of truth.
