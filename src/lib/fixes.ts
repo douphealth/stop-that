@@ -4,7 +4,7 @@ export type Fix = {
   slug: string; title: string; app: string; device: string; category: string;
   status: "disable" | "reduce" | "unconfirmed"; summary: string; steps: string[];
   source: { label: string; url: string }; keywords: string; important?: string;
-  scope: string; estimatedTime: string; reviewed: string; note?: string; alt?: string;
+  scope: string; estimatedTime: string; reviewed: string; note?: string; alt?: string | string[];
 };
 
 export const fixes = raw as Fix[];

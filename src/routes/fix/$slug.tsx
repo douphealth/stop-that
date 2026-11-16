@@ -73,7 +73,7 @@ function FixPage() {
       {fix.important && (
         <aside className="mt-6 rounded-2xl bg-warning/10 p-5 text-sm ring-1 ring-warning/30"><strong className="text-warning">Heads up · </strong>{fix.important}</aside>
       )}
-      {fix.alt && <aside className="mt-4 rounded-2xl bg-secondary p-5 text-sm"><strong>Alternative · </strong>{fix.alt}</aside>}
+      {fix.alt && fix.alt.length > 0 && <aside className="mt-4 rounded-2xl bg-secondary p-5 text-sm"><strong>Alternative · </strong>{Array.isArray(fix.alt) ? fix.alt.join(" · ") : fix.alt}</aside>}
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <a href={fix.source.url} target="_blank" rel="noopener noreferrer" className="rounded-full bg-hot px-5 py-2.5 font-semibold text-primary-foreground shadow-glow transition hover:scale-105">Source: {fix.source.label} ↗</a>

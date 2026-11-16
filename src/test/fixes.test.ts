@@ -6,6 +6,6 @@ describe("fixes", () => {
     expect(fixes.every((f) => f.source.url.startsWith("https://"))).toBe(true);
   });
   it("ranks matching app first", () => {
-    expect(searchFixes(fixes, "uber eats")[0].app).toBe("Uber Eats");
+    expect(searchFixes(fixes, "uber eats")[0]?.app).toBe("Uber Eats");
   });
 });
