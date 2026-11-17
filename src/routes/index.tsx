@@ -1,22 +1,29 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, stripSearchParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { ArrowUpRight, Bookmark, Search, X, Smartphone, Monitor, ShieldCheck } from "lucide-react";
 import { apps, categories, deviceLabel, fixes, filterFixes, emptyFilters, statusLabel } from "@/lib/fixes";
-import { filterSearch } from "@/lib/filter-search";
+import { filterSearch, hasActiveFilters } from "@/lib/filter-search";
+import { HOME_DESCRIPTION, HOME_TITLE, shareMeta } from "@/lib/page-meta";
+import { absoluteUrl, robotsDirective } from "@/lib/site";
+import { homeStructuredData } from "@/lib/structured-data";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { useSaved } from "@/lib/saved";
 
 export const Route = createFileRoute("/")({
   validateSearch: filterSearch,
-  head: () => ({ meta: [
-    { title: "STOP THAT! — Source-backed fixes for annoying apps" },
-    { name: "description", content: "Find official-source-backed instructions for notifications, pop-ups, autoplay and AI features, with honest limitations." },
-    { property: "og:title", content: "STOP THAT! — Make your apps less annoying" },
-    { property: "og:description", content: "Search 78 fixes across 17 apps. Clear steps, official sources, honest outcomes." },
-    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
-    { name: "robots", content: "noindex, follow" },
-  ] }),
+  search: { middlewares: [stripSearchParams(emptyFilters)] },
+  head: ({ match }) => {
+    const url = absoluteUrl("/");
+    return { meta: [
+      { title: HOME_TITLE },
+      { name: "description", content: HOME_DESCRIPTION },
+      { property: "og:url", content: url },
+      { property: "og:type", content: "website" },
+      ...shareMeta(HOME_TITLE, HOME_DESCRIPTION),
+      { name: "robots", content: robotsDirective(!hasActiveFilters(match.search)) },
+    ], links: [{ rel: "canonical", href: url }], scripts: [{ type: "application/ld+json", children: JSON.stringify(homeStructuredData()) }] };
+  },
   component: Index,
 });
 const examples = ["YouTube autoplay", "WhatsApp groups", "iPhone summaries", "Chrome popups"];
@@ -26,7 +33,7 @@ function Index() {
   const { saved, toggle } = useSaved();
   const update = (values: Partial<typeof filters>, replace = false) => navigate({ search: (prev) => ({ ...prev, ...values }), replace, resetScroll: false });
   const results = useMemo(() => filterFixes(fixes, filters, saved), [filters, saved]);
-  const filtered = filters.q || filters.app || filters.category || filters.platform || filters.outcome || filters.saved;
+  const filtered = hasActiveFilters(filters);
   return <div className="mx-auto max-w-6xl px-5">
     <section className="border-b border-border py-12 sm:py-16 animate-rise">
       <div className="mb-5 flex items-center gap-2 text-xs font-medium text-muted-foreground"><ShieldCheck className="size-4 text-success" />{fixes.length} source-backed fixes · {apps.length} apps</div>
