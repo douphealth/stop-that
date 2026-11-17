@@ -1,9 +1,12 @@
 import { createFileRoute, Link, notFound, stripSearchParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowUpRight, Bookmark, Check, Copy, ShieldCheck, RotateCcw } from "lucide-react";
-import { deviceLabel, emptyFilters, fixes } from "@/lib/fixes";
+import { deviceLabel, emptyFilters, fixes, type Fix, type FixFilters } from "@/lib/fixes";
 import { filterSearch, hasActiveFilters } from "@/lib/filter-search";
+import { fixDocumentTitle, fixMetaDescription, shareMeta } from "@/lib/page-meta";
+import { relatedFixes } from "@/lib/related-fixes";
 import { absoluteUrl, robotsDirective } from "@/lib/site";
+import { fixStructuredData } from "@/lib/structured-data";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,15 +18,15 @@ export const Route = createFileRoute("/fix/$slug")({
   head: ({ loaderData, match }) => {
     const fix = loaderData?.fix;
     const url = fix ? absoluteUrl(`/fix/${fix.slug}`) : absoluteUrl("/");
+    const title = fix ? fixDocumentTitle(fix.title) : "That fix doesn't exist.";
+    const description = fix ? fixMetaDescription(fix) : "That fix doesn't exist.";
     return { meta: [
-      { title: fix ? `${fix.title} | STOP THAT!` : "Fix unavailable | STOP THAT!" },
-      { name: "description", content: fix?.summary ?? "This fix is unavailable." },
-      { property: "og:title", content: fix?.title ?? "Fix unavailable | STOP THAT!" },
-      { property: "og:description", content: fix?.summary ?? "Return to the STOP THAT! directory." },
-      { property: "og:url", content: url },
-      { property: "og:type", content: "article" }, { name: "twitter:card", content: "summary_large_image" },
+      { title },
+      { name: "description", content: description },
+      ...(fix ? [{ property: "og:url", content: url }, { property: "og:type", content: "article" }] : []),
+      ...shareMeta(title, description),
       { name: "robots", content: robotsDirective(Boolean(fix) && !hasActiveFilters(match.search)) },
-    ], links: fix ? [{ rel: "canonical", href: url }] : [], scripts: fix ? [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "HowTo", name: fix.title, description: fix.summary, step: fix.steps.map((text, i) => ({ "@type": "HowToStep", position: i + 1, text })) }) }] : [] };
+    ], links: fix ? [{ rel: "canonical", href: url }] : [], scripts: fix ? [{ type: "application/ld+json", children: JSON.stringify(fixStructuredData(fix)) }] : [] };
   },
   notFoundComponent: () => <div className="mx-auto max-w-xl px-5 py-32 text-center"><h1 className="text-4xl font-bold">That fix doesn't exist.</h1><Link to="/" className="mt-6 inline-block text-primary">← Back to all fixes</Link></div>,
   component: FixPage,
@@ -34,10 +37,18 @@ function FixContent({ fix }: { fix: (typeof fixes)[number] }) {
   const [done, setDone] = useState<number[]>([]);
   const [copyState, setCopyState] = useState("");
   const { saved, toggle } = useSaved();
-  const related = fixes.filter((f) => f.app === fix.app && f.slug !== fix.slug).slice(0, 4);
   const copy = async () => { try { await navigator.clipboard.writeText(`${fix.title}\n\n${fix.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\nSource: ${fix.source.url}`); setCopyState("Copied instructions"); } catch { setCopyState("Copy unavailable. Select the instructions to copy them."); } };
   return <article className="mx-auto max-w-3xl px-5 pt-10 animate-rise">
-    <Link to="/" search={filters} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />Back to results</Link>
+    <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <li><Link to="/" className="hover:text-foreground">Fixes</Link></li>
+        <li aria-hidden="true">/</li>
+        <li><Link to="/" search={{ ...emptyFilters, app: fix.app }} className="hover:text-foreground">{fix.app}</Link></li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page" className="text-foreground">{fix.title}</li>
+      </ol>
+    </nav>
+    <Link to="/" search={filters} className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />Back to results</Link>
     <div className="mt-7 flex flex-wrap items-center gap-3 text-sm text-muted-foreground"><StatusBadge status={fix.status} /><span>{fix.app} · {deviceLabel[fix.device]}</span><span>{fix.estimatedTime}</span></div>
     <h1 className="mt-4 text-3xl font-extrabold leading-tight sm:text-5xl">{fix.title}</h1>
     <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{fix.summary}</p>
@@ -48,6 +59,19 @@ function FixContent({ fix }: { fix: (typeof fixes)[number] }) {
     <div className="mt-4 flex flex-wrap gap-2"><Button variant="outline" onClick={copy}><Copy />Copy instructions</Button><Button variant="outline" onClick={() => toggle(fix.slug)} aria-pressed={saved.includes(fix.slug)}><Bookmark className={saved.includes(fix.slug) ? "fill-primary text-primary" : ""} />{saved.includes(fix.slug) ? "Saved" : "Save fix"}</Button>{done.length > 0 && <Button variant="ghost" onClick={() => setDone([])}><RotateCcw />Reset checklist</Button>}</div><p className="mt-2 text-xs text-muted-foreground" role="status">{copyState}</p></section>
     <section className="mt-8 border-t border-border pt-6"><h2 className="text-xl font-bold">Limitations & recovery</h2>{fix.important && <p className="mt-3 leading-relaxed text-muted-foreground">{fix.important}</p>}{fix.alt && fix.alt.length > 0 && <p className="mt-3 text-sm text-muted-foreground">{Array.isArray(fix.alt) ? fix.alt.join(" · ") : fix.alt}</p>}<p className="mt-3 text-sm text-muted-foreground">If the setting is missing, check the official source for your version. Do not disable unrelated settings. To reverse a toggle change, return to the same setting and restore its previous value.</p>{fix.status === "unconfirmed" && <p className="mt-3 text-sm text-warning">No confirmed switch means no supported method is recorded here—not proof that disabling it is impossible.</p>}</section>
     <section className="mt-8 border-t border-border pt-6"><h2 className="text-xl font-bold">Source & evidence</h2><Button asChild variant="link" className="mt-3 h-auto whitespace-normal px-0 text-left"><a href={fix.source.url} target="_blank" rel="noopener noreferrer">{fix.source.label}<ArrowUpRight /></a></Button><p className="mt-2 text-sm text-muted-foreground">{fix.note ?? "Based on the linked official documentation; not independently device-tested."}</p><p className="mt-3 text-xs text-muted-foreground">Saved fixes stay in this browser and do not sync across devices.</p></section>
-    {related.length > 0 && <section className="mt-12"><h2 className="mb-4 text-xl font-bold">More {fix.app} fixes</h2><div className="grid gap-3 sm:grid-cols-2">{related.map((r) => <Link key={r.slug} to="/fix/$slug" params={{ slug: r.slug }} search={filters} className="rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary focus-visible:ring-2 focus-visible:ring-ring"><p className="font-semibold">{r.title}</p><p className="mt-2 text-xs text-muted-foreground">{deviceLabel[r.device]} · {r.estimatedTime}</p></Link>)}</div></section>}
+    <RelatedFixes fix={fix} filters={filters} />
   </article>;
+}
+
+function FixLinkCard({ fix, filters }: { fix: Fix; filters: FixFilters }) {
+  return <Link to="/fix/$slug" params={{ slug: fix.slug }} search={filters} className="rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary focus-visible:ring-2 focus-visible:ring-ring"><p className="font-semibold">{fix.title}</p><p className="mt-2 text-xs text-muted-foreground">{deviceLabel[fix.device]} · {fix.estimatedTime}</p></Link>;
+}
+
+function RelatedFixes({ fix, filters }: { fix: Fix; filters: FixFilters }) {
+  const { counterparts, sameCategory, moreFromApp } = relatedFixes(fix);
+  return <>
+    {counterparts.length > 0 && <section className="mt-12"><h2 className="mb-4 text-xl font-bold">Same task on another device</h2><div className="grid gap-3 sm:grid-cols-2">{counterparts.map((related) => <FixLinkCard key={related.slug} fix={related} filters={filters} />)}</div></section>}
+    {sameCategory.length > 0 && <section className="mt-12"><h2 className="mb-4 text-xl font-bold">More {fix.category} fixes for {fix.app}</h2><div className="grid gap-3 sm:grid-cols-2">{sameCategory.map((related) => <FixLinkCard key={related.slug} fix={related} filters={filters} />)}</div></section>}
+    {moreFromApp.length > 0 && <section className="mt-12"><h2 className="mb-4 text-xl font-bold">More {fix.app} fixes</h2><div className="grid gap-3 sm:grid-cols-2">{moreFromApp.map((related) => <FixLinkCard key={related.slug} fix={related} filters={filters} />)}</div></section>}
+  </>;
 }

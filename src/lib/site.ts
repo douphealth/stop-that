@@ -32,6 +32,18 @@ export function renderSitemap(locs: readonly string[]): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
 
+export const EXPLICITLY_ALLOWED_BOTS = [
+  "GPTBot",
+  "OAI-SearchBot",
+  "ChatGPT-User",
+  "PerplexityBot",
+  "ClaudeBot",
+  "Google-Extended",
+  "Applebot-Extended",
+  "Bingbot",
+] as const;
+
 export function renderRobotsTxt(): string {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${absoluteUrl("/sitemap.xml")}\n`;
+  const named = EXPLICITLY_ALLOWED_BOTS.map((bot) => `User-agent: ${bot}\nAllow: /`).join("\n\n");
+  return `${named}\n\nUser-agent: *\nAllow: /\n\nSitemap: ${absoluteUrl("/sitemap.xml")}\n`;
 }

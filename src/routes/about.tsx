@@ -1,16 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ABOUT_DESCRIPTION, ABOUT_TITLE, shareMeta } from "@/lib/page-meta";
 import { absoluteUrl, robotsDirective } from "@/lib/site";
 export const Route = createFileRoute("/about")({
   head: () => {
     const url = absoluteUrl("/about");
     return { meta: [
-      { title: "Editorial standards | STOP THAT!" },
-      { name: "description", content: "How STOP THAT! selects, sources and labels every fix." },
-      { property: "og:title", content: "Editorial standards | STOP THAT!" },
-      { property: "og:description", content: "Short answers. Long-term trust. How every fix is sourced." },
+      { title: ABOUT_TITLE },
+      { name: "description", content: ABOUT_DESCRIPTION },
       { property: "og:url", content: url },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...shareMeta(ABOUT_TITLE, ABOUT_DESCRIPTION),
       { name: "robots", content: robotsDirective(true) },
     ], links: [{ rel: "canonical", href: url }] };
   },
