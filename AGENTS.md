@@ -29,3 +29,6 @@ use the editor.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
 - Fix content lives only in src/data/fixes.json; pages read it through src/lib/fixes.ts so the data stays the single source of truth.
+- Validate the catalog with the shared schema before exposing it; invalid content and duplicate slugs must fail rather than silently publish.
+- Keep discovery state in validated router search parameters and pass it through fix links, so browser history and return navigation preserve filters.
+- Treat documentation review dates as documentation reviews, not device-test verification; missing test provenance stays explicitly unknown.
