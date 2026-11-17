@@ -1,104 +1,63 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { apps, categories, deviceLabel, fixes, searchFixes } from "@/lib/fixes";
+import { useMemo } from "react";
+import { ArrowUpRight, Bookmark, Search, X, Smartphone, Monitor, ShieldCheck } from "lucide-react";
+import { apps, categories, deviceLabel, fixes, filterFixes, emptyFilters, statusLabel } from "@/lib/fixes";
+import { filterSearch } from "@/lib/filter-search";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Button } from "@/components/ui/button";
 import { useSaved } from "@/lib/saved";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "STOP THAT! — 78 source-backed fixes for annoying apps" },
-      { name: "description", content: "Search official, step-by-step fixes to silence notifications, pop-ups, autoplay and AI features on iPhone, Android and desktop." },
-      { property: "og:title", content: "STOP THAT! — Make the noise stop" },
-      { property: "og:description", content: "78 official-source-backed fixes for notifications, pop-ups and autoplay." },
-    ],
-  }),
+  validateSearch: filterSearch,
+  head: () => ({ meta: [
+    { title: "STOP THAT! — Source-backed fixes for annoying apps" },
+    { name: "description", content: "Find official-source-backed instructions for notifications, pop-ups, autoplay and AI features, with honest limitations." },
+    { property: "og:title", content: "STOP THAT! — Make your apps less annoying" },
+    { property: "og:description", content: "Search 78 fixes across 17 apps. Clear steps, official sources, honest outcomes." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
+    { name: "robots", content: "noindex, follow" },
+  ] }),
   component: Index,
 });
-
-const examples = ["YouTube shorts", "WhatsApp groups", "iPhone summaries", "Chrome popups", "Discord @everyone"];
-const devices = ["iphone", "android", "desktop"];
-
+const examples = ["YouTube autoplay", "WhatsApp groups", "iPhone summaries", "Chrome popups"];
 function Index() {
-  const [q, setQ] = useState("");
-  const [app, setApp] = useState("");
-  const [cat, setCat] = useState("");
-  const [dev, setDev] = useState("");
-  const [onlySaved, setOnlySaved] = useState(false);
+  const filters = Route.useSearch();
+  const navigate = Route.useNavigate();
   const { saved, toggle } = useSaved();
-
-  const results = useMemo(() => {
-    const base = fixes.filter((f) =>
-      (!app || f.app === app) && (!cat || f.category === cat) &&
-      (!dev || f.device === dev || f.device.startsWith("all")) && (!onlySaved || saved.includes(f.slug)));
-    return searchFixes(base, q);
-  }, [q, app, cat, dev, onlySaved, saved]);
-
-  const chip = (active: boolean) => `rounded-full px-3.5 py-1.5 text-sm transition ring-1 ${active ? "bg-primary text-primary-foreground ring-primary shadow-glow" : "ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/30"}`;
-
-  return (
-    <div className="mx-auto max-w-6xl px-5">
-      <section className="pt-20 pb-12 text-center animate-rise">
-        <p className="mx-auto mb-6 w-fit rounded-full bg-secondary px-4 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border">
-          {fixes.length} fixes · {apps.length} apps · every one linked to official docs
-        </p>
-        <h1 className="text-6xl font-extrabold leading-[0.95] sm:text-8xl">Make the <span className="text-hot">noise</span><br />stop.</h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">Type what's bugging you. Get the exact switch — and an honest answer when one doesn't exist.</p>
-        <div className="mx-auto mt-10 max-w-2xl">
-          <div className="flex items-center gap-3 rounded-2xl bg-card px-5 py-4 ring-1 ring-border shadow-glow focus-within:ring-primary transition">
-            <span className="text-xl">🔎</span>
-            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. stop YouTube autoplay on iPhone"
-              aria-label="Search fixes" className="w-full bg-transparent text-lg outline-none placeholder:text-muted-foreground" />
-            {q && <button onClick={() => setQ("")} className="text-sm text-muted-foreground hover:text-foreground">Clear</button>}
-          </div>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {examples.map((e) => <button key={e} onClick={() => setQ(e)} className="rounded-full bg-secondary px-3 py-1 text-xs text-muted-foreground hover:text-foreground">{e}</button>)}
-          </div>
-        </div>
-      </section>
-
-      <section className="space-y-3 border-y border-border py-6">
-        <div className="flex flex-wrap gap-2">
-          <button className={chip(!cat)} onClick={() => setCat("")}>All types</button>
-          {categories.map((c) => <button key={c} className={chip(cat === c)} onClick={() => setCat(cat === c ? "" : c)}>{c}</button>)}
-          <span className="mx-1 w-px bg-border" />
-          {devices.map((d) => <button key={d} className={chip(dev === d)} onClick={() => setDev(dev === d ? "" : d)}>{deviceLabel[d]}</button>)}
-          <span className="mx-1 w-px bg-border" />
-          <button className={chip(onlySaved)} onClick={() => setOnlySaved(!onlySaved)}>★ Saved ({saved.length})</button>
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {apps.map((a) => <button key={a} className={chip(app === a) + " shrink-0"} onClick={() => setApp(app === a ? "" : a)}>{a}</button>)}
-        </div>
-      </section>
-
-      <p className="mt-8 mb-4 text-sm text-muted-foreground">{results.length} {results.length === 1 ? "fix" : "fixes"}</p>
-      {results.length === 0 ? (
-        <div className="rounded-2xl bg-card p-12 text-center ring-1 ring-border">
-          <p className="text-2xl font-bold">Nothing matched.</p>
-          <p className="mt-2 text-muted-foreground">Try the app name plus what it does, like "Spotify ads" or "Teams sounds".</p>
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map((f, i) => (
-            <div key={f.slug} style={{ animationDelay: `${Math.min(i, 12) * 35}ms` }}
-              className="group relative flex flex-col rounded-2xl bg-card p-5 ring-1 ring-border transition duration-300 hover:-translate-y-1 hover:ring-primary/60 hover:shadow-glow animate-rise">
-              <div className="mb-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">{f.app} · {deviceLabel[f.device]}</span>
-                <button aria-label={saved.includes(f.slug) ? "Unsave" : "Save"} onClick={() => toggle(f.slug)}
-                  className={`relative z-10 text-lg transition hover:scale-125 ${saved.includes(f.slug) ? "text-accent" : "text-muted-foreground"}`}>{saved.includes(f.slug) ? "★" : "☆"}</button>
-              </div>
-              <Link to="/fix/$slug" params={{ slug: f.slug }} className="after:absolute after:inset-0">
-                <h3 className="text-lg font-bold leading-snug group-hover:text-primary transition">{f.title}</h3>
-              </Link>
-              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{f.summary}</p>
-              <div className="mt-auto flex items-center justify-between pt-4">
-                <StatusBadge status={f.status} />
-                <span className="text-xs text-muted-foreground">⏱ {f.estimatedTime}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  const update = (values: Partial<typeof filters>, replace = false) => navigate({ search: (prev) => ({ ...prev, ...values }), replace, resetScroll: false });
+  const results = useMemo(() => filterFixes(fixes, filters, saved), [filters, saved]);
+  const filtered = filters.q || filters.app || filters.category || filters.platform || filters.outcome || filters.saved;
+  return <div className="mx-auto max-w-6xl px-5">
+    <section className="border-b border-border py-12 sm:py-16 animate-rise">
+      <div className="mb-5 flex items-center gap-2 text-xs font-medium text-muted-foreground"><ShieldCheck className="size-4 text-success" />{fixes.length} source-backed fixes · {apps.length} apps</div>
+      <h1 className="text-5xl font-extrabold leading-tight sm:text-6xl">STOP THAT<span className="text-primary">!</span></h1>
+      <p className="mt-3 text-xl text-foreground">Make your apps less annoying.</p>
+      <p className="mt-2 max-w-2xl text-muted-foreground">Notifications, autoplay, pop-ups and unwanted AI features. Exact instructions, official sources, and honest answers when no switch is confirmed.</p>
+      <div className="mt-7 flex max-w-3xl items-center gap-3 rounded-lg border border-input bg-card px-4 py-3 focus-within:ring-2 focus-within:ring-ring">
+        <Search className="size-5 shrink-0 text-muted-foreground" />
+        <input value={filters.q} onChange={(e) => update({ q: e.target.value }, true)} placeholder="Search an app or annoyance…" aria-label="Search fixes" className="min-w-0 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground" />
+        {filters.q && <Button variant="ghost" size="icon" aria-label="Clear search" title="Clear search" onClick={() => update({ q: "" })}><X /></Button>}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">{examples.map((q) => <Button variant="ghost" size="sm" key={q} onClick={() => update({ q })} className="text-muted-foreground">{q}<ArrowUpRight /></Button>)}</div>
+    </section>
+    <section aria-label="Filter fixes" className="space-y-4 border-b border-border py-6">
+      <div className="flex flex-wrap items-end gap-3">
+        {([
+          ["app", "App", apps.map((a) => [a, a])],
+          ["category", "Type", categories.map((c) => [c, c])],
+          ["platform", "Platform", ["iphone", "android", "desktop"].map((d) => [d, deviceLabel[d]])],
+        ] as const).map(([key, label, options]) => <label key={key} className="flex min-w-36 flex-1 flex-col gap-1.5 text-xs font-medium text-muted-foreground"><span>{label}</span><select aria-label={label} value={filters[key]} onChange={(e) => update({ [key]: e.target.value })} className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><option value="">All {label === "Type" ? "types" : label === "Platform" ? "platforms" : "apps"}</option>{options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>)}
+        <Button variant={filters.saved ? "default" : "outline"} aria-pressed={filters.saved} onClick={() => update({ saved: !filters.saved })} className="h-10"><Bookmark />Saved ({saved.length})</Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2"><span className="mr-1 text-xs text-muted-foreground">Outcome</span><Button size="sm" variant={!filters.outcome ? "secondary" : "ghost"} aria-pressed={!filters.outcome} onClick={() => update({ outcome: "" })}>All outcomes</Button>{Object.entries(statusLabel).map(([value, label]) => <Button key={value} size="sm" variant={filters.outcome === value ? "secondary" : "ghost"} aria-pressed={filters.outcome === value} onClick={() => update({ outcome: filters.outcome === value ? "" : value })}>{label}</Button>)}{filtered && <Button variant="link" size="sm" onClick={() => navigate({ search: emptyFilters, resetScroll: false })}><X />Reset filters</Button>}</div>
+    </section>
+    <div className="my-6 flex flex-wrap justify-between gap-2"><p aria-live="polite" className="text-sm text-muted-foreground">{results.length} {results.length === 1 ? "fix" : "fixes"}</p>{filters.saved && <p className="text-xs text-muted-foreground">Saved in this browser only; not synced across devices.</p>}</div>
+    {!results.length ? <section className="py-12 text-center"><Search className="mx-auto mb-4 size-8 text-muted-foreground" /><h2 className="text-2xl font-bold">No matching fixes.</h2><p className="mt-2 text-muted-foreground">Try an app name or a shorter phrase, or remove a filter.</p><Button className="mt-5" variant="outline" onClick={() => navigate({ search: emptyFilters })}>Clear all filters</Button></section> :
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{results.map((f) => <article key={f.slug} className="group relative flex flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/60">
+      <div className="mb-3 flex items-center justify-between gap-2 text-xs text-muted-foreground"><span className="flex items-center gap-2">{f.device === "desktop" ? <Monitor className="size-4" /> : <Smartphone className="size-4" />}<span className="font-semibold text-foreground">{f.app}</span> · {deviceLabel[f.device]}</span><Button variant="ghost" size="icon" aria-label={saved.includes(f.slug) ? `Unsave ${f.title}` : `Save ${f.title}`} title={saved.includes(f.slug) ? "Unsave fix" : "Save fix"} aria-pressed={saved.includes(f.slug)} onClick={() => toggle(f.slug)} className="relative z-10 size-8"><Bookmark className={saved.includes(f.slug) ? "fill-primary text-primary" : "text-muted-foreground"} /></Button></div>
+      <Link to="/fix/$slug" params={{ slug: f.slug }} search={filters} className="outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-ring"><h2 className="text-lg font-bold leading-snug transition-colors group-hover:text-primary">{f.title}</h2></Link>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.summary}</p>
+      <div className="mt-auto pt-5"><StatusBadge status={f.status} /><p className="mt-3 text-xs text-muted-foreground">Official source · reviewed {f.reviewed}</p><div className="mt-3 flex items-center justify-between border-t border-border pt-3 text-xs"><span className="text-muted-foreground">{f.estimatedTime}</span><span className="flex items-center gap-1 text-primary">View instructions <ArrowUpRight className="size-3.5" /></span></div></div>
+    </article>)}</div>}
+  </div>;
 }
