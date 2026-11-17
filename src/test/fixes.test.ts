@@ -34,7 +34,9 @@ describe("fixes", () => {
     expect(results.every((f) => f.status === "unconfirmed")).toBe(true);
   });
   it("searches exact instruction labels", () => {
-    const example = { ...fixes[0], title: "Example", app: "Example", keywords: "example", category: "Example", summary: "Example", steps: ["Open specialneedle settings"] };
+    const first = fixes[0];
+    if (!first) throw new Error("Catalog is empty");
+    const example = { ...first, title: "Example", app: "Example", keywords: "example", category: "Example", summary: "Example", steps: ["Open specialneedle settings"] };
     expect(searchFixes([example], "specialneedle")).toHaveLength(1);
   });
 });

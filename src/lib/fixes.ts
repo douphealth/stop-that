@@ -4,8 +4,8 @@ import { z } from "zod";
 export type Fix = {
   slug: string; title: string; app: string; device: string; category: string;
   status: "disable" | "reduce" | "unconfirmed"; summary: string; steps: string[];
-  source: { label: string; url: string }; keywords: string; important?: string;
-  scope: string; estimatedTime: string; reviewed: string; note?: string; alt?: string | string[];
+  source: { label: string; url: string }; keywords: string; important?: string | undefined;
+  scope: string; estimatedTime: string; reviewed: string; note?: string | undefined; alt?: string | string[] | undefined;
 };
 
 const requiredText = z.string().trim().min(1);
@@ -16,7 +16,7 @@ export const fixSchema = z.object({
   steps: z.array(requiredText).min(1), source: z.object({ label: requiredText, url: z.string().url().startsWith("https://") }),
   keywords: requiredText, scope: z.enum(["official-app", "os-conditional"]), estimatedTime: requiredText,
   reviewed: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((s) => Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s, "Invalid review date"),
-  important: requiredText.optional(), note: requiredText.optional(), alt: z.union([z.string(), z.array(requiredText)]).optional(),
+  important: z.string().optional(), note: z.string().optional(), alt: z.union([z.string(), z.array(requiredText)]).optional(),
 });
 export const catalogSchema = z.array(fixSchema).superRefine((entries, ctx) => {
   const seen = new Set<string>();
