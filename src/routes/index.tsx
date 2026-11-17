@@ -17,7 +17,6 @@ export const Route = createFileRoute("/")({
     { property: "og:title", content: "STOP THAT! — Make your apps less annoying" },
     { property: "og:description", content: "Search 78 fixes across 17 apps. Clear steps, official sources, honest outcomes." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
-    { name: "robots", content: "noindex, follow" },
   ] }),
   component: Index,
 });

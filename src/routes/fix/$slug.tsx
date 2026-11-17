@@ -1,7 +1,7 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, stripSearchParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowUpRight, Bookmark, Check, Copy, ShieldCheck, RotateCcw } from "lucide-react";
-import { deviceLabel, fixes } from "@/lib/fixes";
+import { deviceLabel, emptyFilters, fixes } from "@/lib/fixes";
 import { filterSearch } from "@/lib/filter-search";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useSaved } from "@/lib/saved";
 export const Route = createFileRoute("/fix/$slug")({
   validateSearch: filterSearch,
+  search: { middlewares: [stripSearchParams(emptyFilters)] },
   loader: ({ params }) => { const fix = fixes.find((f) => f.slug === params.slug); if (!fix) throw notFound(); return { fix }; },
   head: ({ loaderData }) => ({ meta: [
     { title: loaderData ? `${loaderData.fix.title} | STOP THAT!` : "Fix unavailable | STOP THAT!" },
     { name: "description", content: loaderData?.fix.summary ?? "This fix is unavailable." },
     { property: "og:title", content: loaderData?.fix.title ?? "Fix unavailable | STOP THAT!" },
     { property: "og:description", content: loaderData?.fix.summary ?? "Return to the STOP THAT! directory." },
-    { property: "og:type", content: "article" }, { name: "twitter:card", content: "summary_large_image" }, { name: "robots", content: "noindex, follow" },
+    { property: "og:type", content: "article" }, { name: "twitter:card", content: "summary_large_image" },
   ], scripts: loaderData ? [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "HowTo", name: loaderData.fix.title, description: loaderData.fix.summary, step: loaderData.fix.steps.map((text, i) => ({ "@type": "HowToStep", position: i + 1, text })) }) }] : [] }),
   notFoundComponent: () => <div className="mx-auto max-w-xl px-5 py-32 text-center"><h1 className="text-4xl font-bold">That fix doesn't exist.</h1><Link to="/" className="mt-6 inline-block text-primary">← Back to all fixes</Link></div>,
   component: FixPage,
