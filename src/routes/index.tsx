@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, stripSearchParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { ArrowUpRight, Bookmark, Search, X, Smartphone, Monitor, ShieldCheck } from "lucide-react";
 import { apps, categories, deviceLabel, fixes, filterFixes, emptyFilters, statusLabel } from "@/lib/fixes";
@@ -9,6 +9,8 @@ import { useSaved } from "@/lib/saved";
 
 export const Route = createFileRoute("/")({
   validateSearch: filterSearch,
+  // Keep "/" clean: default filters are stripped so crawlers get a 200 at the canonical URL, not a 307 to "?q=&app=...".
+  search: { middlewares: [stripSearchParams(emptyFilters)] },
   head: () => ({ meta: [
     { title: "STOP THAT! — Source-backed fixes for annoying apps" },
     { name: "description", content: "Find official-source-backed instructions for notifications, pop-ups, autoplay and AI features, with honest limitations." },
