@@ -18,7 +18,8 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </header>
       <main>{children}</main>
       <footer className="mt-24 border-t border-border py-10 text-center text-sm text-muted-foreground">
-        Independent guide. Every fix links to official vendor documentation. Not affiliated with any app listed.
+        Independent guide. Every fix links to official vendor documentation. Not affiliated with any app listed.{" "}
+        <a href="/privacy" className="underline underline-offset-4 hover:text-foreground">Privacy policy</a>
       </footer>
     </div>
   );
