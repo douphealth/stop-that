@@ -9,15 +9,22 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useSaved } from "@/lib/saved";
 import { fixFaq, otherDevices, sameCategory, shortAnswer } from "@/lib/fix-content";
 import { statusLabel } from "@/lib/fixes";
+const DEVICE_LABEL: Record<string, string> = { iphone: "iPhone", android: "Android", desktop: "desktop", "all-mobile": "iPhone and Android", all: "every device" };
+/** Unique meta description: the summary plus the device it covers (iPhone and Android variants otherwise share one). */
+function metaDescription(fix: { summary: string; device: string }) {
+  const label = DEVICE_LABEL[fix.device] ?? fix.device;
+  if (new RegExp(label.split(" ")[0] ?? label, "i").test(fix.summary)) return fix.summary;
+  return `${fix.summary.replace(/\.?$/, ".")} Step-by-step for ${label}.`;
+}
 export const Route = createFileRoute("/fix/$slug")({
   validateSearch: filterSearch,
   search: { middlewares: [stripSearchParams(emptyFilters)] },
   loader: ({ params }) => { const fix = fixes.find((f) => f.slug === params.slug); if (!fix) throw notFound(); return { fix }; },
   head: ({ loaderData }) => ({ meta: [
     { title: loaderData ? `${loaderData.fix.title} | STOP THAT!` : "Fix unavailable | STOP THAT!" },
-    { name: "description", content: loaderData?.fix.summary ?? "This fix is unavailable." },
+    { name: "description", content: loaderData ? metaDescription(loaderData.fix) : "This fix is unavailable." },
     { property: "og:title", content: loaderData?.fix.title ?? "Fix unavailable | STOP THAT!" },
-    { property: "og:description", content: loaderData?.fix.summary ?? "Return to the STOP THAT! directory." },
+    { property: "og:description", content: loaderData ? metaDescription(loaderData.fix) : "Return to the STOP THAT! directory." },
     { property: "og:type", content: "article" }, { name: "twitter:card", content: "summary_large_image" },
   ], scripts: loaderData ? [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "HowTo", name: loaderData.fix.title, description: loaderData.fix.summary, step: loaderData.fix.steps.map((text, i) => ({ "@type": "HowToStep", position: i + 1, text })) }) }] : [] }),
   notFoundComponent: () => <div className="mx-auto max-w-xl px-5 py-32 text-center"><h1 className="text-4xl font-bold">That fix doesn't exist.</h1><Link to="/" className="mt-6 inline-block text-primary">← Back to all fixes</Link></div>,
