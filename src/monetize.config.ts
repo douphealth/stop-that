@@ -1,6 +1,6 @@
 // Partner / affiliate slots and Amazon tag. Everything stays invisible until a url / tag is set.
 // Add the approved tracking link to "url" (and the programme name to "partner"), commit, push: Cloudflare deploys it.
-export type OfferSlotId = "focus-blocker";
+export type OfferSlotId = "focus-blocker" | "data-removal";
 export type OfferSlot = { heading: string; body: string; cta: string; url: string; partner: string };
 export const OFFER_SLOTS: Record<OfferSlotId, OfferSlot> = {
   // Freedom affiliate programme (impact.com): shown on Notifications and Autoplay fixes.
@@ -11,7 +11,17 @@ export const OFFER_SLOTS: Record<OfferSlotId, OfferSlot> = {
     url: "",
     partner: "Freedom",
   },
+  // Incogni affiliate programme (HasOffers/TUNE): shown on Privacy fixes.
+  "data-removal": {
+    heading: "Want less spam reaching you in the first place?",
+    body: "Settings hide what reaches your screen. Incogni asks data brokers to delete your personal information, which can reduce spam calls, texts and emails over time.",
+    cta: "See how Incogni works",
+    url: "",
+    partner: "Incogni",
+  },
 };
+/** Fix categories where the data-removal slot is relevant. */
+export const DATA_REMOVAL_CATEGORIES = new Set(["Privacy"]);
 /** Fix categories where the focus-blocker slot is relevant. */
 export const FOCUS_BLOCKER_CATEGORIES = new Set(["Notifications", "Autoplay"]);
 export const OFFER_LINKS: Record<string, string> = {};
