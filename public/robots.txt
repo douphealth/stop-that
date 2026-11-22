@@ -1,4 +1,30 @@
+# STOP THAT! — Search Engine & AI Answer Engine Crawler Policy
 User-agent: *
 Allow: /
 
+# Explicitly welcome AI Search & Answer Engines (AEO / GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# XML Sitemap & AI Knowledge Base
 Sitemap: https://stopthat.shop/sitemap.xml
+# LLMs Index: https://stopthat.shop/llms.txt
+# Full AI Knowledge Base: https://stopthat.shop/llms-full.txt
