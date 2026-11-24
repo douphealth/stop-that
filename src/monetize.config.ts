@@ -16,7 +16,8 @@ export const OFFER_SLOTS: Record<OfferSlotId, OfferSlot> = {
     heading: "Want less spam reaching you in the first place?",
     body: "Settings hide what reaches your screen. Incogni asks data brokers to delete your personal information, which can reduce spam calls, texts and emails over time.",
     cta: "See how Incogni works",
-    url: "",
+    // Incogni Revenue Share, offer 2, affiliate 3193 (40% of revenue). Approved 24 Nov 2026.
+    url: "https://deal.incogni.io/aff_c?offer_id=2&aff_id=3193&source=stopthat",
     partner: "Incogni",
   },
 };
