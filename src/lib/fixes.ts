@@ -6,6 +6,7 @@ export type Fix = {
   status: "disable" | "reduce" | "unconfirmed"; summary: string; steps: string[];
   source: { label: string; url: string }; keywords: string; important?: string | undefined;
   scope: string; estimatedTime: string; reviewed: string; note?: string | undefined; alt?: string | string[] | undefined;
+  metaDescription?: string | undefined; moreSources?: { label: string; url: string }[] | undefined;
 };
 
 const requiredText = z.string().trim().min(1);
@@ -17,6 +18,8 @@ export const fixSchema = z.object({
   keywords: requiredText, scope: z.enum(["official-app", "os-conditional"]), estimatedTime: requiredText,
   reviewed: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((s) => Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s, "Invalid review date"),
   important: z.string().optional(), note: z.string().optional(), alt: z.union([z.string(), z.array(requiredText)]).optional(),
+  metaDescription: z.string().trim().min(50).max(165).optional(),
+  moreSources: z.array(z.object({ label: requiredText, url: z.string().url().startsWith("https://") })).optional(),
 });
 export const catalogSchema = z.array(fixSchema).superRefine((entries, ctx) => {
   const seen = new Set<string>();

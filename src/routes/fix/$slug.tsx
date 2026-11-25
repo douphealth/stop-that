@@ -33,7 +33,8 @@ const DEVICE_LABEL: Record<string, string> = {
 };
 
 /** Unique meta description: the summary plus the device it covers (iPhone and Android variants otherwise share one). */
-function metaDescription(fix: { summary: string; device: string }) {
+function metaDescription(fix: { summary: string; device: string; metaDescription?: string | undefined }) {
+  if (fix.metaDescription) return fix.metaDescription;
   const label = DEVICE_LABEL[fix.device] ?? fix.device;
   if (new RegExp(label.split(" ")[0] ?? label, "i").test(fix.summary)) return fix.summary;
   return `${fix.summary.replace(/\.?$/, ".")} Step-by-step for ${label}.`;
@@ -70,7 +71,7 @@ export const Route = createFileRoute("/fix/$slug")({
               description: loaderData.fix.summary,
               totalTime: `PT${parseInt(loaderData.fix.estimatedTime, 10) || 1}M`,
               dateModified: loaderData.fix.reviewed,
-              isBasedOn: loaderData.fix.source.url,
+              isBasedOn: [loaderData.fix.source.url, ...(loaderData.fix.moreSources ?? []).map((m) => m.url)],
               tool: [
                 { "@type": "HowToTool", name: loaderData.fix.app },
                 { "@type": "HowToTool", name: deviceLabel[loaderData.fix.device] ?? loaderData.fix.device },
@@ -342,6 +343,14 @@ function FixContent({ fix }: { fix: (typeof fixes)[number] }) {
               <ArrowUpRight />
             </a>
           </Button>
+          {fix.moreSources?.map((src) => (
+            <Button key={src.url} asChild variant="link" className="h-auto whitespace-normal px-0 text-left text-primary">
+              <a href={src.url} target="_blank" rel="noopener noreferrer">
+                {src.label}
+                <ArrowUpRight />
+              </a>
+            </Button>
+          ))}
           <p className="mt-2 text-sm text-muted-foreground">
             {fix.note ?? "Based on the linked official documentation; not independently device-tested."}
           </p>
