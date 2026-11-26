@@ -114,7 +114,7 @@ export function HeroNoiseSimulator({ filters }: { filters: FixFilters }) {
         <button
           type="button"
           onClick={toggleAll}
-          className="rounded-full border border-border bg-secondary/70 px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/60 hover:text-primary"
+          className="shrink-0 whitespace-nowrap rounded-full border border-border bg-secondary/70 px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/60 hover:text-primary"
         >
           {isZen ? "Replay Chaos" : "Silence All"}
         </button>

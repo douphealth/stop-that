@@ -89,9 +89,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <div className="aurora-orb orb-mint" aria-hidden="true" />
 
       <header className="sticky top-0 z-30 border-b border-border bg-background/75 backdrop-blur-xl">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3.5">
-          <Link to="/" className="group flex items-center gap-2.5 font-display text-xl font-extrabold">
-            <span className="grid size-9 place-items-center rounded-xl bg-hot text-primary-foreground shadow-lg group-hover:animate-wiggle">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3.5 sm:gap-3 sm:px-5">
+          <Link to="/" className="group flex shrink-0 items-center gap-2 whitespace-nowrap font-display text-lg font-extrabold sm:gap-2.5 sm:text-xl">
+            <span className="grid size-8 place-items-center rounded-xl bg-hot text-primary-foreground shadow-lg group-hover:animate-wiggle sm:size-9">
               ✋
             </span>
             <span>
@@ -99,18 +99,18 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </span>
           </Link>
 
-          <div className="flex items-center gap-1 text-sm">
+          <div className="flex min-w-0 items-center gap-0.5 text-sm sm:gap-1">
             {([["/", "Fixes"], ["/about", "Standards"]] as const).map(([to, l]) => (
               <Link
                 key={to}
                 to={to}
                 activeOptions={{ exact: true }}
-                className="rounded-full px-3.5 py-1.5 font-medium text-muted-foreground transition hover:text-foreground"
+                className="rounded-full px-2.5 py-1.5 font-medium text-muted-foreground transition hover:text-foreground sm:px-3.5"
                 activeProps={{ className: "bg-secondary text-foreground ring-1 ring-border" }}
               >
                 {l}
                 {to === "/" && (
-                  <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-primary">
+                  <span className="ml-1.5 hidden rounded-full bg-primary/15 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-primary sm:inline">
                     {fixes.length}
                   </span>
                 )}
@@ -118,7 +118,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
               onClick={() => setCmdOpen(true)}
@@ -131,7 +131,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </button>
 
             <div
-              className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-medium text-success"
+              className="hidden items-center gap-2 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-medium text-success sm:inline-flex"
               title={`${silenced.length} of ${fixes.length} fixes marked silenced in this browser`}
             >
               <svg className="size-4 -rotate-90" viewBox="0 0 24 24" aria-hidden="true">

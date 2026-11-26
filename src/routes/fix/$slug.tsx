@@ -214,7 +214,7 @@ function FixContent({ fix }: { fix: (typeof fixes)[number] }) {
         <p data-aeo-answer="true" className="mt-2 leading-relaxed">{shortAnswer(fix)}</p>
       </section>
 
-      <section className="mt-6 grid gap-3 sm:grid-cols-2" aria-label="Compatibility and evidence">
+      <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Compatibility and evidence">
         <div className="glass-surface rounded-2xl p-4">
           <div className="flex items-center gap-2 text-xs font-semibold text-success">
             <ShieldCheck className="size-4" /> Official documentation linked
@@ -315,7 +315,7 @@ function FixContent({ fix }: { fix: (typeof fixes)[number] }) {
         </p>
       </section>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <section className="glass-surface rounded-2xl p-5">
           <h2 className="text-lg font-bold">Limitations &amp; recovery</h2>
           {fix.important && <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{fix.important}</p>}
@@ -366,7 +366,7 @@ function FixContent({ fix }: { fix: (typeof fixes)[number] }) {
       {related.length > 0 && (
         <section className="mt-12">
           <h2 className="mb-4 text-xl font-bold">More {fix.app} fixes</h2>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {related.map((r) => (
               <Link
                 key={r.slug}
@@ -465,7 +465,7 @@ function FixContent({ fix }: { fix: (typeof fixes)[number] }) {
           sc.length > 0 && (
             <section className="mt-12">
               <h2 className="mb-4 text-xl font-bold">Similar {fix.category.toLowerCase()} fixes for other apps</h2>
-              <ul className="grid gap-2.5 sm:grid-cols-2">
+              <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {sc.map((r) => (
                   <li key={r.slug}>
                     <Link

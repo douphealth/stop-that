@@ -114,8 +114,8 @@ function Index() {
   return (
     <div className="mx-auto max-w-6xl px-5">
       {/* 2-Column Interactive Hero */}
-      <section className="grid items-center gap-8 border-b border-border py-10 lg:grid-cols-12 lg:py-14 animate-rise">
-        <div className="lg:col-span-7">
+      <section className="grid grid-cols-1 items-center gap-8 border-b border-border py-10 lg:grid-cols-12 lg:py-14 animate-rise">
+        <div className="min-w-0 lg:col-span-7">
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-medium text-success">
               <span className="size-2 rounded-full bg-success animate-pulse" />
@@ -186,9 +186,9 @@ function Index() {
 
           {/* Interactive Outcome Breakdown Bar */}
           <div className="mt-6 rounded-2xl border border-border bg-card/70 p-3.5 backdrop-blur-md">
-            <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-              <span className="font-medium">Catalog honesty breakdown (click to filter)</span>
-              <span className="font-mono text-[11px]">{fixes.length} verified entries</span>
+            <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <span className="font-medium">Catalog honesty breakdown <span className="hidden sm:inline">(click to filter)</span></span>
+              <span className="shrink-0 font-mono text-[11px]">{fixes.length} entries</span>
             </div>
             <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-black/25">
               <button
@@ -245,7 +245,7 @@ function Index() {
           </div>
         </div>
 
-        <div className="lg:col-span-5">
+        <div className="min-w-0 lg:col-span-5">
           <HeroNoiseSimulator filters={filters} />
         </div>
       </section>
@@ -463,7 +463,7 @@ function Index() {
           })}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((f) => {
             const isSilenced = silenced.includes(f.slug);
             return (

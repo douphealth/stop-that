@@ -66,7 +66,7 @@ export function AeoDirectorySection({ onSelectApp }: { onSelectApp: (app: string
           </p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {appGroups.map(({ app, list, disable, reduce }) => (
             <div key={app} className="spotlight-card flex flex-col rounded-2xl p-4">
               <div className="flex items-center justify-between gap-2">
